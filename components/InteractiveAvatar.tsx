@@ -1,9 +1,5 @@
 import type { StartAvatarResponse } from "@heygen/streaming-avatar";
-
-import StreamingAvatar, {
-  AvatarQuality,
-  StreamingEvents, TaskMode, TaskType, VoiceEmotion,
-} from "@heygen/streaming-avatar";
+import StreamingAvatar, { AvatarQuality, StreamingEvents, TaskMode, TaskType, VoiceEmotion } from "@heygen/streaming-avatar";
 import {
   Button,
   Card,
@@ -31,11 +27,14 @@ export default function InteractiveAvatar() {
   const [stream, setStream] = useState<MediaStream>();
   const [debug, setDebug] = useState<string>();
   const [knowledgeId, setKnowledgeId] = useState<string>("");
+  const [rate, setRate] = useState<string>("1.5");
   const [avatarId, setAvatarId] = useState<string>("");
-  const [language, setLanguage] = useState<string>('en');
+  const [language, setLanguage] = useState<string>('es');
+  const [emotion, setEmotion] = useState<string>('excited');
 
   const [data, setData] = useState<StartAvatarResponse>();
   const [text, setText] = useState<string>("");
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const mediaStream = useRef<HTMLVideoElement>(null);
   const avatar = useRef<StreamingAvatar | null>(null);
   const [chatMode, setChatMode] = useState("text_mode");
@@ -91,10 +90,11 @@ export default function InteractiveAvatar() {
       const res = await avatar.current.createStartAvatar({
         quality: AvatarQuality.Low,
         avatarName: avatarId,
-        knowledgeId: knowledgeId, // Or use a custom `knowledgeBase`.
+        knowledgeId: knowledgeId,
+        //knowledge_base: "",
         voice: {
-          rate: 1.5, // 0.5 ~ 1.5
-          emotion: VoiceEmotion.EXCITED,
+          rate: (rate && !isNaN(Number(rate)))?  Number(rate): 1.5, 
+          emotion: emotion || VoiceEmotion.EXCITED,
         },
         language: language,
       });
@@ -109,6 +109,7 @@ export default function InteractiveAvatar() {
       setIsLoadingSession(false);
     }
   }
+  
   async function handleSpeak() {
     setIsLoadingRepeat(true);
     if (!avatar.current) {
@@ -179,9 +180,9 @@ export default function InteractiveAvatar() {
   return (
     <div className="w-full flex flex-col gap-4">
       <Card>
-        <CardBody className="h-[500px] flex flex-col justify-center items-center">
+        <CardBody className="h-[500px] flex flex-col justify-center items-center" style={{padding: "0!important"}}>
           {stream ? (
-            <div className="h-[500px] w-[900px] justify-center items-center flex rounded-lg overflow-hidden">
+            <div className="h-[500px] justify-center items-center flex rounded-lg overflow-hidden" style={{width: "100%"}}>
               <video
                 ref={mediaStream}
                 autoPlay
@@ -189,6 +190,10 @@ export default function InteractiveAvatar() {
                 style={{
                   width: "100%",
                   height: "100%",
+                  backgroundImage: "url('/Fondo.jpg')",
+                  backgroundSize: "contain",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
                   objectFit: "contain",
                 }}
               >
@@ -201,7 +206,7 @@ export default function InteractiveAvatar() {
                   variant="shadow"
                   onClick={handleInterrupt}
                 >
-                  Interrupt task
+                  Interrumpir tarea
                 </Button>
                 <Button
                   className="bg-gradient-to-tr from-indigo-500 to-indigo-300  text-white rounded-lg"
@@ -209,7 +214,7 @@ export default function InteractiveAvatar() {
                   variant="shadow"
                   onClick={endSession}
                 >
-                  End session
+                  Terminar sesión
                 </Button>
               </div>
             </div>
@@ -217,23 +222,18 @@ export default function InteractiveAvatar() {
             <div className="h-full justify-center items-center flex flex-col gap-8 w-[500px] self-center">
               <div className="flex flex-col gap-2 w-full">
                 <p className="text-sm font-medium leading-none">
-                  Custom Knowledge ID (optional)
+                  Custom Knowledge ID (opcional)
                 </p>
                 <Input
-                  placeholder="Enter a custom knowledge ID"
+                  placeholder="Ingresa un custom knowledge ID"
                   value={knowledgeId}
                   onChange={(e) => setKnowledgeId(e.target.value)}
                 />
                 <p className="text-sm font-medium leading-none">
-                  Custom Avatar ID (optional)
+                  Custom Avatar ID (opcional)
                 </p>
-                <Input
-                  placeholder="Enter a custom avatar ID"
-                  value={avatarId}
-                  onChange={(e) => setAvatarId(e.target.value)}
-                />
                 <Select
-                  placeholder="Or select one from these example avatars"
+                  placeholder="Elige uno de los avatars"
                   size="md"
                   onChange={(e) => {
                     setAvatarId(e.target.value);
@@ -248,9 +248,18 @@ export default function InteractiveAvatar() {
                     </SelectItem>
                   ))}
                 </Select>
+                <p className="text-sm font-medium leading-none">
+                  Velocidad de Voz (opcional)
+                </p>
+                <Input
+                  placeholder="0.5 ~ 1.5"
+                  value={rate}
+                  type="number"
+                  onChange={(e) => setRate(e.target.value)}
+                />
                 <Select
-                  label="Select language"
-                  placeholder="Select language"
+                  label="Elegir idioma"
+                  placeholder="Elegir idioma"
                   className="max-w-xs"
                   selectedKeys={[language]}
                   onChange={(e) => {
@@ -263,14 +272,40 @@ export default function InteractiveAvatar() {
                     </SelectItem>
                   ))}
                 </Select>
+                <Select
+                  label="Elegir emoción"
+                  placeholder="Elegir emoción"
+                  className="max-w-xs"
+                  selectedKeys={[emotion]}
+                  onChange={(e) => {
+                    setEmotion(e.target.value);
+                  }}
+                >
+                  <SelectItem 
+                      key={"excited"}
+                      textValue={"Emocionado"}>Emocionado</SelectItem>
+                  <SelectItem 
+                      key={"serious"}
+                      textValue={"Serio"}>Serio</SelectItem>
+                  <SelectItem 
+                      key={"friendly"}
+                      textValue={"Amigable"}>Amigable</SelectItem>
+                  <SelectItem 
+                      key={"soothing"}
+                      textValue={"Calmante"}>Calmante</SelectItem>
+                  <SelectItem 
+                      key={"broadcaster"}
+                      textValue={"Locutor"}>Locutor</SelectItem>
+                </Select>
               </div>
               <Button
-                className="bg-gradient-to-tr from-indigo-500 to-indigo-300 w-full text-white"
+                className="w-full text-white"
                 size="md"
+                style={{backgroundColor: "#7821ac"}}
                 variant="shadow"
                 onClick={startSession}
               >
-                Start session
+                Comenzar
               </Button>
             </div>
           ) : (
@@ -286,8 +321,8 @@ export default function InteractiveAvatar() {
               handleChangeChatMode(v);
             }}
           >
-            <Tab key="text_mode" title="Text mode" />
-            <Tab key="voice_mode" title="Voice mode" />
+            <Tab key="text_mode" title="Modo Texto" />
+            <Tab key="voice_mode" title="Modo Voz" />
           </Tabs>
           {chatMode === "text_mode" ? (
             <div className="w-full flex relative">
@@ -296,12 +331,12 @@ export default function InteractiveAvatar() {
                 input={text}
                 label="Chat"
                 loading={isLoadingRepeat}
-                placeholder="Type something for the avatar to respond"
+                placeholder="Escribe algo para que el avatar responda"
                 setInput={setText}
                 onSubmit={handleSpeak}
               />
               {text && (
-                <Chip className="absolute right-16 top-3">Listening</Chip>
+                <Chip className="absolute right-16 top-3">Escuchando</Chip>
               )}
             </div>
           ) : (
@@ -312,7 +347,7 @@ export default function InteractiveAvatar() {
                 size="md"
                 variant="shadow"
               >
-                {isUserTalking ? "Listening" : "Voice chat"}
+                {isUserTalking ? "Escuchando" : "Chat de Voz"}
               </Button>
             </div>
           )}

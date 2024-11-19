@@ -19,11 +19,11 @@ const fontMono = FontMono({
 
 export const metadata: Metadata = {
   title: {
-    default: "HeyGen Interactive Avatar SDK Demo",
-    template: `%s - HeyGen Interactive Avatar SDK Demo`,
+    default: "Demo Avatar Interactivo",
+    template: `%s - Demo Avatar Interactivo`,
   },
   icons: {
-    icon: "/heygen-logo.png",
+    icon: "/Laraigo-logo.png",
   },
 };
 
