@@ -71,3 +71,4 @@ Please note that Photo Avatars are not compatible with Interactive Avatar and ca
 
 Please read our Interactive Avatar 101 article for more information on pricing and how to increase your concurrent session limit: https://help.heygen.com/en/articles/9182113-interactive-avatar-101-your-ultimate-guide
 "# interactiveavatarnextjdDemo" 
+"# interactiveavatarnextjdDemo" 
