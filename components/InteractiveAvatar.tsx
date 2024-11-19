@@ -1,5 +1,11 @@
 import type { StartAvatarResponse } from "@heygen/streaming-avatar";
-import StreamingAvatar, { AvatarQuality, StreamingEvents, TaskMode, TaskType, VoiceEmotion } from "@heygen/streaming-avatar";
+import StreamingAvatar, {
+  AvatarQuality,
+  StreamingEvents,
+  TaskMode,
+  TaskType,
+  VoiceEmotion,
+} from "@heygen/streaming-avatar";
 import {
   Button,
   Card,
@@ -19,7 +25,7 @@ import { useMemoizedFn, usePrevious } from "ahooks";
 
 import InteractiveAvatarTextInput from "./InteractiveAvatarTextInput";
 
-import {AVATARS, STT_LANGUAGE_LIST} from "@/app/lib/constants";
+import { AVATARS, STT_LANGUAGE_LIST } from "@/app/lib/constants";
 
 export default function InteractiveAvatar() {
   const [isLoadingSession, setIsLoadingSession] = useState(false);
@@ -29,12 +35,11 @@ export default function InteractiveAvatar() {
   const [knowledgeId, setKnowledgeId] = useState<string>("");
   const [rate, setRate] = useState<string>("1.5");
   const [avatarId, setAvatarId] = useState<string>("");
-  const [language, setLanguage] = useState<string>('es');
-  const [emotion, setEmotion] = useState<string>('excited');
+  const [language, setLanguage] = useState<string>("es");
+  const [emotion, setEmotion] = useState<string>("excited");
 
   const [data, setData] = useState<StartAvatarResponse>();
   const [text, setText] = useState<string>("");
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const mediaStream = useRef<HTMLVideoElement>(null);
   const avatar = useRef<StreamingAvatar | null>(null);
   const [chatMode, setChatMode] = useState("text_mode");
@@ -93,7 +98,7 @@ export default function InteractiveAvatar() {
         knowledgeId: knowledgeId,
         //knowledge_base: "",
         voice: {
-          rate: (rate && !isNaN(Number(rate)))?  Number(rate): 1.5, 
+          rate: rate && !isNaN(Number(rate)) ? Number(rate) : 1.5,
           emotion: emotion || VoiceEmotion.EXCITED,
         },
         language: language,
@@ -109,7 +114,6 @@ export default function InteractiveAvatar() {
       setIsLoadingSession(false);
     }
   }
-  
   async function handleSpeak() {
     setIsLoadingRepeat(true);
     if (!avatar.current) {
@@ -118,9 +122,11 @@ export default function InteractiveAvatar() {
       return;
     }
     // speak({ text: text, task_type: TaskType.REPEAT })
-    await avatar.current.speak({ text: text, taskType: TaskType.REPEAT, taskMode: TaskMode.SYNC }).catch((e) => {
-      setDebug(e.message);
-    });
+    await avatar.current
+      .speak({ text: text, taskType: TaskType.REPEAT, taskMode: TaskMode.SYNC })
+      .catch((e) => {
+        setDebug(e.message);
+      });
     setIsLoadingRepeat(false);
   }
   async function handleInterrupt() {
@@ -129,11 +135,9 @@ export default function InteractiveAvatar() {
 
       return;
     }
-    await avatar.current
-      .interrupt()
-      .catch((e) => {
-        setDebug(e.message);
-      });
+    await avatar.current.interrupt().catch((e) => {
+      setDebug(e.message);
+    });
   }
   async function endSession() {
     await avatar.current?.stopAvatar();
@@ -180,9 +184,21 @@ export default function InteractiveAvatar() {
   return (
     <div className="w-full flex flex-col gap-4">
       <Card>
-        <CardBody className="h-[500px] flex flex-col justify-center items-center" style={{padding: "0!important"}}>
+        <CardBody
+          className="h-[500px] flex flex-col justify-center items-center"
+          style={{ padding: "0!important" }}
+        >
           {stream ? (
-            <div className="h-[500px] justify-center items-center flex rounded-lg overflow-hidden" style={{width: "100%"}}>
+            <div
+              className="h-[500px] justify-center items-center flex rounded-lg overflow-hidden"
+              style={{
+                width: "100%",
+                backgroundImage: "url('/Fondo.jpg')",
+                backgroundSize: "contain",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center",
+              }}
+            >
               <video
                 ref={mediaStream}
                 autoPlay
@@ -190,10 +206,6 @@ export default function InteractiveAvatar() {
                 style={{
                   width: "100%",
                   height: "100%",
-                  backgroundImage: "url('/Fondo.jpg')",
-                  backgroundSize: "contain",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "center",
                   objectFit: "contain",
                 }}
               >
@@ -267,9 +279,7 @@ export default function InteractiveAvatar() {
                   }}
                 >
                   {STT_LANGUAGE_LIST.map((lang) => (
-                    <SelectItem key={lang.key}>
-                      {lang.label}
-                    </SelectItem>
+                    <SelectItem key={lang.key}>{lang.label}</SelectItem>
                   ))}
                 </Select>
                 <Select
@@ -281,27 +291,27 @@ export default function InteractiveAvatar() {
                     setEmotion(e.target.value);
                   }}
                 >
-                  <SelectItem 
-                      key={"excited"}
-                      textValue={"Emocionado"}>Emocionado</SelectItem>
-                  <SelectItem 
-                      key={"serious"}
-                      textValue={"Serio"}>Serio</SelectItem>
-                  <SelectItem 
-                      key={"friendly"}
-                      textValue={"Amigable"}>Amigable</SelectItem>
-                  <SelectItem 
-                      key={"soothing"}
-                      textValue={"Calmante"}>Calmante</SelectItem>
-                  <SelectItem 
-                      key={"broadcaster"}
-                      textValue={"Locutor"}>Locutor</SelectItem>
+                  <SelectItem key={"excited"} textValue={"Emocionado"}>
+                    Emocionado
+                  </SelectItem>
+                  <SelectItem key={"serious"} textValue={"Serio"}>
+                    Serio
+                  </SelectItem>
+                  <SelectItem key={"friendly"} textValue={"Amigable"}>
+                    Amigable
+                  </SelectItem>
+                  <SelectItem key={"soothing"} textValue={"Calmante"}>
+                    Calmante
+                  </SelectItem>
+                  <SelectItem key={"broadcaster"} textValue={"Locutor"}>
+                    Locutor
+                  </SelectItem>
                 </Select>
               </div>
               <Button
                 className="w-full text-white"
                 size="md"
-                style={{backgroundColor: "#7821ac"}}
+                style={{ backgroundColor: "#7821ac" }}
                 variant="shadow"
                 onClick={startSession}
               >
